@@ -19,7 +19,8 @@ NONTERMINALS = """
 S -> NP VP | S P S | S Conj S 
 
 PP -> P NP
-NP -> N | Adj NP | Det NP | N PP
+NN -> N | Adj NN | N PP
+NP -> N | Det NN 
 VP -> V | V NP | VP PP | Adv VP | VP Adv | VP Conj VP
 """
 
@@ -76,6 +77,14 @@ def preprocess(sentence):
     return words
 
 
+def no_np_child(np):
+    count = 0
+    for child in np.subtrees():
+        if child.label() == 'NP':
+            count += 1
+    return True if count == 1 else False
+
+
 def np_chunk(tree):
     """
     Return a list of all noun phrase chunks in the sentence tree.
@@ -83,10 +92,9 @@ def np_chunk(tree):
     whose label is "NP" that does not itself contain any other
     noun phrases as subtrees.
     """
-    # basically Noun Phrase Chunks are just Nouns?
-    output = list()
+    output = []
     for subtree in tree.subtrees():
-        if subtree.label() == 'N':
+        if subtree.label() == 'NP' and no_np_child(subtree):
             output.append(subtree)
     return output
 
