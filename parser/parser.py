@@ -78,10 +78,9 @@ def preprocess(sentence):
 
 
 def no_np_child(np):
-    count = 0
-    for child in np.subtrees():
-        if child.label() == 'NP':
-            count += 1
+    # subtrees() returns the original sentence 
+    # --> need to subtract 1 from count
+    count = len(list(np.subtrees(filter=lambda t: t.label() == 'NP')))
     return True if count == 1 else False
 
 
