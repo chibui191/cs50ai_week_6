@@ -1,4 +1,5 @@
 import nltk
+from nltk.corpus import stopwords 
 import os
 import sys
 from fnmatch import fnmatch
@@ -45,6 +46,7 @@ def main():
 
     # Determine top sentence matches
     matches = top_sentences(query, sentences, idfs, n=SENTENCE_MATCHES)
+    # replacing idfs with file_idfs
     # matches = top_sentences(query, sentences, idfs, n=3)
     for match in matches:
         print(match)
@@ -83,13 +85,13 @@ def tokenize(document):
     # --> add these to filter them out more efficiently later
     quotes = "''" + '""' + '``'
     punctuation = string.punctuation + quotes
-    stopwords = nltk.corpus.stopwords.words("english")
+    stop_words = nltk.corpus.stopwords.words('english') 
+    word_tokens = nltk.word_tokenize(document) 
 
     contents = [
-        word.lower() for word 
-        in nltk.word_tokenize(document)
-        if word not in punctuation 
-        and word not in stopwords
+        word.lower() for word in word_tokens 
+        if (not word.lower() in stop_words)
+        and (not word in punctuation)
     ]
 
     return contents
@@ -173,12 +175,11 @@ def top_sentences(query, sentences, idfs, n):
     for sentence, words in sentences.items():
         # matching word measure (mwm)
         mwm = 0
-        for word in words:
-            # if word in query:
-            #     mwm += idfs[word]
-            # else:
-            #     continue
-            mwm += idfs[word] if word in query else 0
+        # mwm_list = {}
+        for word in query:
+            if word in words:
+                mwm += idfs[word]
+                # mwm_list[word] = idfs[word]            
 
         # query term density (qtd) = query word count (qwc) / total word count (twc)
         twc = len(words)
@@ -191,7 +192,7 @@ def top_sentences(query, sentences, idfs, n):
 
     sorted_sentence_analysis = dict(sorted(sentence_analysis.items(), key=operator.itemgetter(1), reverse=True))
 
-    top_n_sentences = list(sorted_sentence_analysis.keys())[:n]
+    top_n_sentences = list(sorted_sentence_analysis)[:n]
     # top_n_sentences = dict(itertools.islice(sorted_sentence_analysis.items(), n))
     return top_n_sentences
 
