@@ -46,11 +46,8 @@ def main():
 
     # Determine top sentence matches
     matches = top_sentences(query, sentences, idfs, n=SENTENCE_MATCHES)
-    # replacing idfs with file_idfs
-    # matches = top_sentences(query, sentences, idfs, n=3)
     for match in matches:
         print(match)
-    # print(matches)
 
 
 def load_files(directory):
@@ -158,7 +155,7 @@ def top_files(query, files, idfs, n):
     # reverse=True --> ordered with best match first
     sorted_file_tfidfs = dict(sorted(file_tfidfs.items(), key=operator.itemgetter(1), reverse=True))
 
-    top_n_files = list(sorted_file_tfidfs.keys())[:n]
+    top_n_files = list(sorted_file_tfidfs)[:n]
     return top_n_files
 
 
@@ -175,11 +172,8 @@ def top_sentences(query, sentences, idfs, n):
     for sentence, words in sentences.items():
         # matching word measure (mwm)
         mwm = 0
-        # mwm_list = {}
         for word in query:
-            if word in words:
-                mwm += idfs[word]
-                # mwm_list[word] = idfs[word]            
+            mwm += idfs[word] if word in words else 0         
 
         # query term density (qtd) = query word count (qwc) / total word count (twc)
         twc = len(words)
@@ -193,7 +187,6 @@ def top_sentences(query, sentences, idfs, n):
     sorted_sentence_analysis = dict(sorted(sentence_analysis.items(), key=operator.itemgetter(1), reverse=True))
 
     top_n_sentences = list(sorted_sentence_analysis)[:n]
-    # top_n_sentences = dict(itertools.islice(sorted_sentence_analysis.items(), n))
     return top_n_sentences
 
 
